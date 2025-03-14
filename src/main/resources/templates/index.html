@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSS - 车票销售终端系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .terminal-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .terminal-header h1 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+        }
+
+        .terminal-body {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .left-panel {
+            flex: 2;
+            padding-right: 20px;
+        }
+
+        .right-panel {
+            flex: 1;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 1px solid #ddd;
+        }
+
+        /* 显示屏样式 */
+        .screen-container {
+            margin-bottom: 20px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #000;
+        }
+
+        .screen {
+            height: 150px;
+            background-color: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-line;
+            overflow-y: auto;
+            font-size: 16px;
+        }
+
+        /* 操作说明区域 */
+        .operation-guide {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .operation-guide h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        /* 键盘区域 */
+        .keyboard-section {
+            margin-bottom: 20px;
+        }
+
+        .keyboard-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        /* 目的地键盘 */
+        .destination-keyboard {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .number-keyboard,
+        .letter-keyboard {
+            flex: 1;
+        }
+
+        .keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .keyboard-button {
+            padding: 15px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .keyboard-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .function-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .function-button {
+            padding: 15px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clear-button {
+            background-color: #ffcdd2;
+            color: #d32f2f;
+        }
+
+        .confirm-button {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        /* 车票类型选择 */
+        .ticket-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .ticket-options select {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .ticket-options button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* 支付区域 */
+        .payment-section {
+            margin-bottom: 20px;
+        }
+
+        .payment-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .payment-options button {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .payment-options button.card-payment {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .payment-options button.cash-payment {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .payment-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .payment-input input {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .payment-input button {
+            padding: 10px 15px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* 继续/取消按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .action-buttons .continue-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .action-buttons .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        /* 打印机区域 */
+        .printer-section {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .printer-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+            color: #f44336;
+        }
+
+        .printer-output {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-line;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        /* 目的地信息 */
+        .destination-info {
+            margin-top: 20px;
+        }
+
+        .destination-info h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .destination-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .destination-info th,
+        .destination-info td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .destination-info th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="terminal-header">
+            <h1>车票销售终端系统 (TSS)</h1>
+        </div>
+
+        <div class="terminal-body">
+            <div class="left-panel">
+                <!-- 显示屏 -->
+                <div class="screen-container">
+                    <div class="screen" id="screen" th:text="${screenDisplay ?: '系统初始化中...'}"></div>
+                </div>
+
+                <!-- 操作说明 -->
+                <div class="operation-guide">
+                    <h3>操作说明</h3>
+                    <p>1. 输入目的地代码 → 2. 选择票种和座位类型 → 3. 选择支付方式 → 4. 完成支付 → 5. 继续或结束</p>
+                </div>
+
+                <!-- 目的地键盘 -->
+                <div class="keyboard-section">
+                    <h3>目的地键盘</h3>
+                    <div class="destination-keyboard">
+                        <!-- 数字键盘 -->
+                        <div class="number-keyboard">
+                            <div class="keyboard-grid">
+                                <button class="keyboard-button" onclick="inputDestination('1')">1</button>
+                                <button class="keyboard-button" onclick="inputDestination('2')">2</button>
+                                <button class="keyboard-button" onclick="inputDestination('3')">3</button>
+                                <button class="keyboard-button" onclick="inputDestination('4')">4</button>
+                                <button class="keyboard-button" onclick="inputDestination('5')">5</button>
+                                <button class="keyboard-button" onclick="inputDestination('6')">6</button>
+                                <button class="keyboard-button" onclick="inputDestination('7')">7</button>
+                                <button class="keyboard-button" onclick="inputDestination('8')">8</button>
+                                <button class="keyboard-button" onclick="inputDestination('9')">9</button>
+                                <button class="keyboard-button" onclick="inputDestination('0')">0</button>
+                            </div>
+                        </div>
+
+                        <!-- 字母键盘 -->
+                        <div class="letter-keyboard">
+                            <div class="keyboard-grid">
+                                <button class="keyboard-button" onclick="inputDestination('A')">A</button>
+                                <button class="keyboard-button" onclick="inputDestination('B')">B</button>
+                                <button class="keyboard-button" onclick="inputDestination('C')">C</button>
+                                <button class="keyboard-button" onclick="inputDestination('D')">D</button>
+                                <button class="keyboard-button" onclick="inputDestination('E')">E</button>
+                                <button class="keyboard-button" onclick="inputDestination('F')">F</button>
+                                <button class="keyboard-button" onclick="inputDestination('G')">G</button>
+                                <button class="keyboard-button" onclick="inputDestination('H')">H</button>
+                                <button class="keyboard-button" onclick="inputDestination('I')">I</button>
+                                <button class="keyboard-button" onclick="inputDestination('U')">U</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 功能按钮 -->
+                    <div class="function-buttons">
+                        <button class="function-button clear-button" onclick="clearDestination()">清除</button>
+                        <button class="function-button confirm-button" onclick="submitDestination()">确认</button>
+                    </div>
+                </div>
+
+                <!-- 车票类型选择 -->
+                <div class="keyboard-section">
+                    <h3>车票类型选择</h3>
+                    <div class="ticket-options">
+                        <select id="ticketType">
+                            <option value="">-- 选择票种 --</option>
+                            <option th:each="type : ${ticketTypes}" th:value="${type}" th:text="${type.description}">
+                            </option>
+                        </select>
+                        <select id="seatType">
+                            <option value="">-- 选择座位 --</option>
+                            <option th:each="seat : ${seatTypes}" th:value="${seat}" th:text="${seat.description}">
+                            </option>
+                        </select>
+                        <button onclick="selectTicket()">确认选择</button>
+                    </div>
+                </div>
+
+                <!-- 支付方式 -->
+                <div class="payment-section">
+                    <h3>支付方式</h3>
+                    <div class="payment-options">
+                        <button onclick="selectPayment('CARD')" class="card-payment">刷卡支付</button>
+                        <button onclick="selectPayment('CASH')" class="cash-payment">现金支付</button>
+                    </div>
+                    <div class="payment-input" id="cashPayment" style="display: none;">
+                        <input type="number" id="cashAmount" placeholder="输入现金金额">
+                        <button onclick="submitCashPayment()">投入现金</button>
+                    </div>
+                    <div class="payment-input" id="cardPayment" style="display: none;">
+                        <input type="text" id="cardNumber" placeholder="输入卡号">
+                        <button onclick="submitCardPayment()">刷卡</button>
+                    </div>
+                </div>
+
+                <!-- 继续/取消按钮 -->
+                <div class="action-buttons">
+                    <button class="continue-btn" onclick="continueAction()">继续</button>
+                    <button class="cancel-btn" onclick="cancelAction()">取消</button>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <!-- 打印机区域 - 移到右侧面板 -->
+                <div class="printer-section">
+                    <h3>打印机</h3>
+                    <div class="printer-output" id="printerOutput"></div>
+                </div>
+
+                <!-- 目的地信息 -->
+                <div class="destination-info">
+                    <h3>可用目的地</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>代码</th>
+                                <th>名称</th>
+                                <th>基础票价</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dest : ${destinations}">
+                                <td th:text="${dest.code}"></td>
+                                <td th:text="${dest.name}"></td>
+                                <td th:text="${'¥' + dest.basePrice}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 当前状态
+        let currentDestinationInput = '';
+        let currentPaymentType = '';
+        let currentState = 'init'; // 状态: init, destination, ticket, payment, complete
+
+        // 目的地输入处理
+        function inputDestination(key) {
+            if (currentDestinationInput.length < 3) {
+                currentDestinationInput += key;
+                // 直接在显示屏上显示用户输入的内容
+                updateScreen('请输入目的地代码\n\n' + currentDestinationInput);
+            }
+        }
+
+        function clearDestination() {
+            currentDestinationInput = '';
+            // 清除后更新显示屏
+            updateScreen('请输入目的地代码');
+        }
+
+        function submitDestination() {
+            if (currentDestinationInput.length > 0) {
+                fetch('/api/ticket/destination?destinationCode=' + currentDestinationInput, {
+                    method: 'POST'
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                        currentState = 'ticket';
+                        updateScreen('目的地代码: ' + currentDestinationInput + '\n请选择票种和座位类型');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        updateScreen('处理目的地输入时出错，请重试');
+                    });
+            }
+        }
+
+        // 票种选择处理
+        function selectTicket() {
+            const ticketType = document.getElementById('ticketType').value;
+            const seatType = document.getElementById('seatType').value;
+
+            if (ticketType && seatType) {
+                fetch(`/api/ticket/select-ticket?ticketType=${ticketType}&seatType=${seatType}`, {
+                    method: 'POST'
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                        currentState = 'payment';
+                        const ticketTypeText = document.getElementById('ticketType').options[document.getElementById('ticketType').selectedIndex].text;
+                        const seatTypeText = document.getElementById('seatType').options[document.getElementById('seatType').selectedIndex].text;
+                        updateScreen('票种: ' + ticketTypeText + '\n座位: ' + seatTypeText + '\n请选择支付方式');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        updateScreen('处理票种选择时出错，请重试');
+                    });
+            } else {
+                updateScreen('请选择票种和座位类型');
+            }
+        }
+
+        // 支付处理
+        function selectPayment(type) {
+            currentPaymentType = type;
+
+            if (type === 'CASH') {
+                document.getElementById('cashPayment').style.display = 'flex';
+                document.getElementById('cardPayment').style.display = 'none';
+                updateScreen('请输入现金金额并点击"投入现金"');
+            } else if (type === 'CARD') {
+                document.getElementById('cashPayment').style.display = 'none';
+                document.getElementById('cardPayment').style.display = 'flex';
+                updateScreen('请输入卡号并点击"刷卡"');
+            }
+        }
+
+        function submitCashPayment() {
+            const amount = document.getElementById('cashAmount').value;
+
+            if (amount && parseFloat(amount) > 0) {
+                fetch(`/api/ticket/payment?paymentType=CASH&amount=${amount}`, {
+                    method: 'POST'
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                        currentState = 'complete';
+                        updateScreen('现金支付处理中...\n支付成功，票已打印\n按继续键继续购票，按取消键结束');
+                        simulatePrinting();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        updateScreen('支付处理时出错，请重试');
+                    });
+            } else {
+                updateScreen('请输入有效的金额');
+            }
+        }
+
+        function submitCardPayment() {
+            const cardNumber = document.getElementById('cardNumber').value;
+
+            if (cardNumber && cardNumber.length >= 6) {
+                fetch(`/api/ticket/payment?paymentType=CARD`, {
+                    method: 'POST'
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                        currentState = 'complete';
+                        updateScreen('卡支付处理中...\n支付成功，票已打印\n按继续键继续购票，按取消键结束');
+                        simulatePrinting();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        updateScreen('支付处理时出错，请重试');
+                    });
+            } else {
+                updateScreen('请输入有效的卡号');
+            }
+        }
+
+        // 继续/取消处理
+        function continueAction() {
+            fetch('/api/ticket/action?isContinue=true', {
+                method: 'POST'
+            })
+                .then(response => response.text())
+                .then(data => {
+                    resetForm();
+                    currentState = 'destination';
+                    updateScreen('请输入目的地代码');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    updateScreen('处理操作时出错，请重试');
+                });
+        }
+
+        function cancelAction() {
+            fetch('/api/ticket/action?isContinue=false', {
+                method: 'POST'
+            })
+                .then(response => response.text())
+                .then(data => {
+                    resetForm();
+                    currentState = 'init';
+                    updateScreen('感谢使用，欢迎下次光临');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    updateScreen('处理操作时出错，请重试');
+                });
+        }
+
+        // 辅助函数
+        function updateScreen(text) {
+            document.getElementById('screen').textContent = text;
+        }
+
+        function resetForm() {
+            currentDestinationInput = '';
+            currentPaymentType = '';
+            document.getElementById('ticketType').value = '';
+            document.getElementById('seatType').value = '';
+            document.getElementById('cashAmount').value = '';
+            document.getElementById('cardNumber').value = '';
+            document.getElementById('cashPayment').style.display = 'none';
+            document.getElementById('cardPayment').style.display = 'none';
+        }
+
+        function simulatePrinting() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString();
+            const timeStr = now.toLocaleTimeString();
+
+            let ticketTypeText = '';
+            let seatTypeText = '';
+
+            try {
+                ticketTypeText = document.getElementById('ticketType').options[document.getElementById('ticketType').selectedIndex].text;
+                seatTypeText = document.getElementById('seatType').options[document.getElementById('seatType').selectedIndex].text;
+            } catch (e) {
+                ticketTypeText = '单程票';
+                seatTypeText = '普通座';
+            }
+
+            const ticketOutput = `======================================
+            车票凭证                 
+======================================
+票号: T${Date.now()}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}
+目的地: ${getDestinationName(currentDestinationInput)} (${currentDestinationInput})
+票种: ${ticketTypeText}
+座位类型: ${seatTypeText}
+票价: ¥${getTicketPrice(currentDestinationInput, ticketTypeText, seatTypeText)}
+有效期: ${dateStr} ${timeStr}
+打印时间: ${dateStr} ${timeStr}
+======================================`;
+
+            document.getElementById('printerOutput').textContent = ticketOutput;
+        }
+
+        function getDestinationName(code) {
+            // 简单模拟，实际应从服务器获取
+            const destinations = {
+                '2U0': '总站',
+                'A01': '北站',
+                'B02': '南站',
+                'C03': '东站',
+                'D04': '西站',
+                'E05': '机场',
+                'F06': '大学城',
+                'G07': '科技园',
+                'H08': '商业区',
+                'I09': '体育中心'
+            };
+            return destinations[code] || code;
+        }
+
+        function getTicketPrice(code, ticketType, seatType) {
+            // 简单模拟，实际应从服务器获取
+            const basePrices = {
+                '2U0': 50,
+                'A01': 30,
+                'B02': 35,
+                'C03': 25,
+                'D04': 28,
+                'E05': 80,
+                'F06': 20,
+                'G07': 40,
+                'H08': 45,
+                'I09': 38
+            };
+
+            let price = basePrices[code] || 50;
+
+            // 票种调整
+            if (ticketType.includes('往返')) {
+                price *= 1.9;
+            } else if (ticketType.includes('多次')) {
+                price *= 0.8;
+            }
+
+            // 座位调整
+            if (seatType.includes('一等')) {
+                price *= 1.5;
+            } else if (seatType.includes('商务')) {
+                price *= 2.0;
+            }
+
+            return price.toFixed(2);
+        }
+
+        // 初始化
+        window.onload = function () {
+            fetch('/api/ticket/init', {
+                method: 'POST'
+            })
+                .then(response => response.text())
+                .then(data => {
+                    fetch('/api/ticket/start', {
+                        method: 'POST'
+                    })
+                        .then(response => response.text())
+                        .then(data => {
+                            currentState = 'destination';
+                            updateScreen('请输入目的地代码');
+                        });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    updateScreen('系统初始化失败，请刷新页面重试');
+                });
+        };
+    </script>
+</body>
+
+</html>
